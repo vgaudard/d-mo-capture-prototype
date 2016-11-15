@@ -19,3 +19,5 @@ decompress`.
 ## Compiling
 
 To compile this project, you must specify where the Leap SDK is installed. (e.g. `make LEAP_SDK=~/lib/LeapSdk/`)
+
+`MetadataEntry` needs qt4. More details about it will be added later. (see `make` and `qmake`)
