@@ -21,6 +21,8 @@ namespace DMO_Prototype
             virtual void onDeviceChange(const Leap::Controller&);
             virtual void onServiceConnect(const Leap::Controller&);
             virtual void onServiceDisconnect(const Leap::Controller&);
+            void setStream(std::ostream *stream);
+            virtual void startRecording();
 
         private:
             virtual void onFrame_Hands(const Leap::Controller&, const Leap::Frame& frame);
@@ -33,7 +35,7 @@ namespace DMO_Prototype
             virtual void onFrame_KeyTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
             virtual void onFrame_ScreenTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
 
-            std::ostream& outStream;
+            std::ostream* outStream;
 
             static const std::string fingerNames[5];
             static const std::string boneNames[4];

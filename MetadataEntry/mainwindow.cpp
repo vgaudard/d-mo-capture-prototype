@@ -4,22 +4,23 @@
 #include "ui_mainwindow.h"
 #include "metadatadialog.h"
 #include "entrylabel.h"
-
+#include "utils.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    dialog(this),
+    metadataDialog(this),
     stringListModel(this),
+    captureDialog(this),
     metadataFolderPath("metadata")
 {
     ui->setupUi(this);
 
-    QFile file("metadata");
+    /*QFile file("metadata");
     file.open(QIODevice::ReadOnly);
     QDataStream in(&file);
     in >> entries;
-    file.close();
+    file.close();*/
 
     QObject::connect(this->ui->saveButton, SIGNAL(clicked()),
                      this, SLOT(saveEntries()));
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->removeEntryButton, SIGNAL(clicked()),
                      this, SLOT(removeEntry()));
 
-    QObject::connect(&dialog, SIGNAL(accepted()),
+    QObject::connect(&metadataDialog, SIGNAL(accepted()),
                      this, SLOT(dialogAccepted()));
 
     QObject::connect(this->ui->entryListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
@@ -38,6 +39,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this->ui->entryListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
                      this, SLOT(updateVisualizer(QListWidgetItem*)));
+
+    QObject::connect(ui->captureButton, SIGNAL(clicked()),
+                     this, SLOT(startCapture()));
 
 
     stringListModel.setStringList(stringList);
@@ -64,9 +68,9 @@ void MainWindow::saveEntries()
     {
         for (auto it = entries.begin(); it < entries.end(); it++)
         {
-            QFile file(dir.path() + "/" + GetRandomString()); // WARNING: Not checking duplicates
+            QFile file(dir.path() + "/" + (*it)->getId()); // WARNING: Not checking duplicates
             file.open(QIODevice::WriteOnly);
-            QDataStream out(&file);
+            //QDataStream out(&file);
 
             //out << *it;
             file.write((*it)->toQString().toUtf8());
@@ -85,8 +89,8 @@ void MainWindow::addEntry()
     Entry* entry = new Entry();
     entries.append(entry);
     editedEntry = entry;
-    dialog.setEntry(entry);
-    dialog.show();
+    metadataDialog.setEntry(entry);
+    metadataDialog.show();
 }
 
 void MainWindow::removeEntry()
@@ -104,11 +108,12 @@ void MainWindow::enableButtons()
     // TODO Uncomment these two lines
     //this->ui->editEntryButton->setEnabled(true);
     //this->ui->removeEntryButton->setEnabled(true);
+    this->ui->captureButton->setEnabled(true);
 }
 
 void MainWindow::dialogAccepted()
 {
-    EntryLabel* entryLabel = new EntryLabel(dialog.getEntry(), ui->entryListWidget);
+    EntryLabel* entryLabel = new EntryLabel(metadataDialog.getEntry(), ui->entryListWidget);
     ui->entryListWidget->addItem(entryLabel);
     ui->entryListWidget->update();
 }
@@ -116,28 +121,14 @@ void MainWindow::dialogAccepted()
 
 void MainWindow::updateVisualizer(QListWidgetItem* newItem)
 {
-    /*auto selectedItems = ui->entryListWidget->selectedItems();
-    if (selectedItems.length() != 0)
-    {
-        auto selectedItem = selectedItems.first();
-        ui->dataVisualizer->document()->setPlainText(selectedItem->text());
-    }*/
-
     auto entryLabelNewItem = static_cast<EntryLabel*>(newItem);
     ui->dataVisualizer->document()->setPlainText(entryLabelNewItem->getEntry()->toQString());
 }
 
-
-QString MainWindow::GetRandomString(int randomStringLength)
+void MainWindow::startCapture()
 {
-   const QString possibleCharacters("abcdefghijklmnopqrstuvwxyz0123456789");
-
-   QString randomString;
-   for(int i=0; i<randomStringLength; ++i)
-   {
-       int index = qrand() % possibleCharacters.length();
-       QChar nextChar = possibleCharacters.at(index);
-       randomString.append(nextChar);
-   }
-   return randomString;
+    captureDialog.setId(static_cast<EntryLabel*>(ui->entryListWidget->selectedItems().first())->getEntry()->getId());
+    captureDialog.show();
 }
+
+

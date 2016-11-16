@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "metadatadialog.h"
+#include "capturedialog.h"
 #include "entry.h"
 
 namespace Ui {
@@ -40,20 +41,19 @@ private slots:
     void enableButtons();
     void dialogAccepted();
     void updateVisualizer(QListWidgetItem *newItem);
+    void startCapture();
 
 private:
     Ui::MainWindow *ui;
     QList<Entry*> entries;
     QModelIndexList indexes;
-    MetadataDialog dialog;
+    MetadataDialog metadataDialog;
+    CaptureDialog captureDialog;
     Entry* editedEntry;
     QStringList stringList;
     QStringListModel stringListModel;
 
     const QString metadataFolderPath;
-
-private:
-    static QString GetRandomString(int randomStringLength = 6);
 };
 
 #endif // MAINWINDOW_H

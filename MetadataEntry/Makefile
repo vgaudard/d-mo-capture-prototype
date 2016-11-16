@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -m64 -pipe -std=c++11 -I/home/ezan/LeapDeveloperKit_v2/LeapSDK//include -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -m64 -pipe -std=c++11 -I/home/ezan/LeapDeveloperKit_v2/LeapSDK//include -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I../../../LeapDeveloperKit_v2/LeapSDK/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
+INCPATH       = -I. -I../../../LeapDeveloperKit_v2/LeapSDK/include -I../dmo_prototype -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
 QMAKE         = /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -53,16 +53,22 @@ SOURCES       = main.cpp \
 		metadatadialog.cpp \
 		entry.cpp \
 		entrylabel.cpp \
-		../dmo_prototype/PrototypeListener.cpp moc_mainwindow.cpp \
-		moc_metadatadialog.cpp
+		../dmo_prototype/PrototypeListener.cpp \
+		capturedialog.cpp \
+		utils.cpp moc_mainwindow.cpp \
+		moc_metadatadialog.cpp \
+		moc_capturedialog.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		metadatadialog.o \
 		entry.o \
 		entrylabel.o \
 		PrototypeListener.o \
+		capturedialog.o \
+		utils.o \
 		moc_mainwindow.o \
-		moc_metadatadialog.o
+		moc_metadatadialog.o \
+		moc_capturedialog.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -123,12 +129,16 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		metadatadialog.h \
 		entry.h \
 		entrylabel.h \
-		../dmo_prototype/PrototypeListener.h main.cpp \
+		../dmo_prototype/PrototypeListener.h \
+		capturedialog.h \
+		utils.h main.cpp \
 		mainwindow.cpp \
 		metadatadialog.cpp \
 		entry.cpp \
 		entrylabel.cpp \
-		../dmo_prototype/PrototypeListener.cpp
+		../dmo_prototype/PrototypeListener.cpp \
+		capturedialog.cpp \
+		utils.cpp
 QMAKE_TARGET  = MetadataEntry
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = MetadataEntry
@@ -156,7 +166,7 @@ first: all
 
 ####### Build rules
 
-$(TARGET): ui_mainwindow.h ui_metadatadialog.h $(OBJECTS)  
+$(TARGET): ui_mainwindow.h ui_metadatadialog.h ui_capturedialog.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: MetadataEntry.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -294,9 +304,9 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.h metadatadialog.h entry.h entrylabel.h ../dmo_prototype/PrototypeListener.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp metadatadialog.cpp entry.cpp entrylabel.cpp ../dmo_prototype/PrototypeListener.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.ui metadatadialog.ui $(DISTDIR)/
+	$(COPY_FILE) --parents mainwindow.h metadatadialog.h entry.h entrylabel.h ../dmo_prototype/PrototypeListener.h capturedialog.h utils.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp mainwindow.cpp metadatadialog.cpp entry.cpp entrylabel.cpp ../dmo_prototype/PrototypeListener.cpp capturedialog.cpp utils.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents mainwindow.ui metadatadialog.ui capturedialog.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -325,28 +335,41 @@ check: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_metadatadialog.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_metadatadialog.cpp moc_capturedialog.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_metadatadialog.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_metadatadialog.cpp moc_capturedialog.cpp
 moc_mainwindow.cpp: metadatadialog.h \
 		entry.h \
+		capturedialog.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/Leap.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/LeapMath.h \
+		../dmo_prototype/PrototypeListener.h \
 		mainwindow.h
-	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/ezan/programming/d-mo-capture-prototype/MetadataEntry -I/home/ezan/LeapDeveloperKit_v2/LeapSDK/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/ezan/programming/d-mo-capture-prototype/MetadataEntry -I/home/ezan/LeapDeveloperKit_v2/LeapSDK/include -I/home/ezan/programming/d-mo-capture-prototype/dmo_prototype -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 moc_metadatadialog.cpp: entry.h \
 		metadatadialog.h
-	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/ezan/programming/d-mo-capture-prototype/MetadataEntry -I/home/ezan/LeapDeveloperKit_v2/LeapSDK/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include metadatadialog.h -o moc_metadatadialog.cpp
+	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/ezan/programming/d-mo-capture-prototype/MetadataEntry -I/home/ezan/LeapDeveloperKit_v2/LeapSDK/include -I/home/ezan/programming/d-mo-capture-prototype/dmo_prototype -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include metadatadialog.h -o moc_metadatadialog.cpp
+
+moc_capturedialog.cpp: ../../../LeapDeveloperKit_v2/LeapSDK/include/Leap.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/LeapMath.h \
+		../dmo_prototype/PrototypeListener.h \
+		capturedialog.h
+	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I/home/ezan/programming/d-mo-capture-prototype/MetadataEntry -I/home/ezan/LeapDeveloperKit_v2/LeapSDK/include -I/home/ezan/programming/d-mo-capture-prototype/dmo_prototype -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include capturedialog.h -o moc_capturedialog.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_mainwindow.h ui_metadatadialog.h
+compiler_uic_make_all: ui_mainwindow.h ui_metadatadialog.h ui_capturedialog.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_mainwindow.h ui_metadatadialog.h
+	-$(DEL_FILE) ui_mainwindow.h ui_metadatadialog.h ui_capturedialog.h
 ui_mainwindow.h: mainwindow.ui
 	/usr/lib/x86_64-linux-gnu/qt5/bin/uic mainwindow.ui -o ui_mainwindow.h
 
 ui_metadatadialog.h: metadatadialog.ui
 	/usr/lib/x86_64-linux-gnu/qt5/bin/uic metadatadialog.ui -o ui_metadatadialog.h
+
+ui_capturedialog.h: capturedialog.ui
+	/usr/lib/x86_64-linux-gnu/qt5/bin/uic capturedialog.ui -o ui_capturedialog.h
 
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
@@ -360,14 +383,23 @@ compiler_clean: compiler_moc_header_clean compiler_uic_clean
 
 main.o: main.cpp mainwindow.h \
 		metadatadialog.h \
-		entry.h
+		entry.h \
+		capturedialog.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/Leap.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/LeapMath.h \
+		../dmo_prototype/PrototypeListener.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 mainwindow.o: mainwindow.cpp mainwindow.h \
 		metadatadialog.h \
 		entry.h \
+		capturedialog.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/Leap.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/LeapMath.h \
+		../dmo_prototype/PrototypeListener.h \
 		ui_mainwindow.h \
-		entrylabel.h
+		entrylabel.h \
+		utils.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
 
 metadatadialog.o: metadatadialog.cpp metadatadialog.h \
@@ -375,7 +407,8 @@ metadatadialog.o: metadatadialog.cpp metadatadialog.h \
 		ui_metadatadialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o metadatadialog.o metadatadialog.cpp
 
-entry.o: entry.cpp entry.h
+entry.o: entry.cpp entry.h \
+		utils.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o entry.o entry.cpp
 
 entrylabel.o: entrylabel.cpp entrylabel.h \
@@ -387,11 +420,24 @@ PrototypeListener.o: ../dmo_prototype/PrototypeListener.cpp ../../../LeapDevelop
 		../dmo_prototype/PrototypeListener.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PrototypeListener.o ../dmo_prototype/PrototypeListener.cpp
 
+capturedialog.o: capturedialog.cpp capturedialog.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/Leap.h \
+		../../../LeapDeveloperKit_v2/LeapSDK/include/LeapMath.h \
+		../dmo_prototype/PrototypeListener.h \
+		ui_capturedialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o capturedialog.o capturedialog.cpp
+
+utils.o: utils.cpp utils.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utils.o utils.cpp
+
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
 
 moc_metadatadialog.o: moc_metadatadialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_metadatadialog.o moc_metadatadialog.cpp
+
+moc_capturedialog.o: moc_capturedialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_capturedialog.o moc_capturedialog.cpp
 
 ####### Install
 

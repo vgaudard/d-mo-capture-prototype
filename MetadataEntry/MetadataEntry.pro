@@ -10,6 +10,7 @@ else {
 }
 
 INCLUDEPATH += $$LEAP_SDK/include
+INCLUDEPATH += ../dmo_prototype
 
 QMAKE_CFLAGS +=  -std=c++11 -I$$LEAP_SDK/include
 QMAKE_CXXFLAGS +=  -std=c++11 -I$$LEAP_SDK/include
@@ -37,16 +38,21 @@ SOURCES += main.cpp\
     metadatadialog.cpp \
     entry.cpp \
     entrylabel.cpp \
-    ../dmo_prototype/PrototypeListener.cpp
+    ../dmo_prototype/PrototypeListener.cpp \
+    capturedialog.cpp \
+    utils.cpp
 
 HEADERS  += mainwindow.h \
     metadatadialog.h \
     entry.h \
     entrylabel.h \
-    ../dmo_prototype/PrototypeListener.h
+    ../dmo_prototype/PrototypeListener.h \
+    capturedialog.h \
+    utils.h
 
 FORMS    += mainwindow.ui \
-    metadatadialog.ui
+    metadatadialog.ui \
+    capturedialog.ui
 
 compressTarget.target = compressGestures
 compressTarget.commands = gzip -r gestures

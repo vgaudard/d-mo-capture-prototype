@@ -1,4 +1,5 @@
 #include "entry.h"
+#include "utils.h"
 
 AgeGroup ageGroup;
 Sex sex;
@@ -38,7 +39,8 @@ Entry::Entry() :
     sex(SEX_UNKNOWN),
     dominantHand(DOMINANT_HAND_UNKNOWN),
     computerLitterate(false),
-    notes("")
+    notes(""),
+    id(Utils::GetRandomString())
 {
 }
 
@@ -47,17 +49,19 @@ Entry::Entry(AgeGroup ageGroup,Sex sex,DominantHand dominantHand, bool computerL
     sex(sex),
     dominantHand(dominantHand),
     computerLitterate(computerLitterate),
-    notes(notes)
+    notes(notes),
+    id(Utils::GetRandomString())
 {
 }
 
-Entry::Entry(const Entry& entry)
+Entry::Entry(const Entry& entry) :
+    ageGroup(entry.ageGroup),
+    sex(entry.sex),
+    dominantHand(entry.dominantHand),
+    computerLitterate(entry.computerLitterate),
+    notes(entry.notes),
+    id(Utils::GetRandomString())
 {
-    ageGroup = entry.ageGroup;
-    sex = entry.sex;
-    dominantHand = entry.dominantHand;
-    computerLitterate = entry.computerLitterate;
-    notes = entry.notes;
 }
 
 void Entry::operator=(const Entry& entry)
@@ -97,6 +101,11 @@ bool Entry::getComputerLitterate()
 QString Entry::getNotes()
 {
     return notes;
+}
+
+QString Entry::getId()
+{
+    return id;
 }
 
 

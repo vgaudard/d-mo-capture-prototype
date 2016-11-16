@@ -63,7 +63,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Capture gestures (Not implemented)</string>
+         <string>Capture gestures</string>
         </property>
        </widget>
       </item>
@@ -93,7 +93,7 @@
      <x>0</x>
      <y>0</y>
      <width>524</width>
-     <height>19</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

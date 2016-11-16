@@ -47,6 +47,7 @@ public:
     DominantHand getDominantHand();
     bool getComputerLitterate();
     QString getNotes();
+    QString getId();
 
     void setAgeGroup(AgeGroup);
     void setSex(Sex);
@@ -67,6 +68,7 @@ private:
     DominantHand dominantHand;
     bool computerLitterate;
     QString notes;
+    QString id;
 };
 
 bool operator==(const Entry& entry1, const Entry& entry2);

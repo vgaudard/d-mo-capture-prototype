@@ -11,8 +11,8 @@ const std::string PrototypeListener::fingerNames[] = {"thumb", "index", "middle"
 const std::string PrototypeListener::boneNames[] = {"metacarpal", "proximal", "middle", "distal"};
 const std::string PrototypeListener::stateNames[] = {"STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END"};
 
-PrototypeListener::PrototypeListener(std::ostream & outStream) :
-    outStream(outStream)
+PrototypeListener::PrototypeListener(std::ostream & stream) :
+    outStream(&stream)
 {
 }
 
@@ -20,9 +20,13 @@ PrototypeListener::~PrototypeListener()
 {
 }
 
+void PrototypeListener::startRecording()
+{
+    *outStream << "<recording>" << std::endl;
+}
+
 void PrototypeListener::onInit(const Leap::Controller& controller)
 {
-    outStream << "<recording>" << std::endl;
 }
 
 void PrototypeListener::onConnect(const Leap::Controller& controller)
@@ -40,7 +44,7 @@ void PrototypeListener::onDisconnect(const Leap::Controller& controller)
 
 void PrototypeListener::onExit(const Leap::Controller& controller)
 {
-    outStream << "</recording>" << std::endl;
+    *outStream << "</recording>" << std::endl;
 }
 
 void PrototypeListener::onFrame(const Leap::Controller& controller)
@@ -49,7 +53,7 @@ void PrototypeListener::onFrame(const Leap::Controller& controller)
     if (frame.hands().count() == 0)
         return;
 
-    outStream << std::string(2, ' ')   << "<instant "
+    *outStream << std::string(2, ' ')   << "<instant "
               << "id=\""               << frame.id()                         << "\" "
               << "timestamp=\""        << frame.timestamp()                  << "\" "
               << "hands=\""            << frame.hands().count()              << "\" "
@@ -62,7 +66,7 @@ void PrototypeListener::onFrame(const Leap::Controller& controller)
     onFrame_Tools(controller, frame);
     onFrame_Gestures(controller, frame);
 
-    outStream    << std::string(2, ' ')   << "</instant>" << std::endl;
+    *outStream    << std::string(2, ' ')   << "</instant>" << std::endl;
 
 }
 
@@ -86,22 +90,27 @@ void PrototypeListener::onServiceDisconnect(const Leap::Controller& controller)
 {
 }
 
+void PrototypeListener::setStream(std::ostream* stream)
+{
+    outStream = stream;
+}
+
 void PrototypeListener::onFrame_Hands(const Leap::Controller& controller, const Leap::Frame& frame)
 {
     Leap::HandList hands = frame.hands();
-    outStream << std::string(4, ' ') << "<hands>" << std::endl;
+    *outStream << std::string(4, ' ') << "<hands>" << std::endl;
     for (auto hl = hands.begin(); hl != hands.end(); ++hl)
     {
         const Leap::Hand hand = *hl;
         const Leap::Vector normal = hand.palmNormal();
         const Leap::Vector direction = hand.direction();
-        outStream    << std::string(6, ' ') << "<hand "
+        *outStream    << std::string(6, ' ') << "<hand "
             << "type=\""           << (hand.isLeft() ? "left" : "right") << "\" "
             << "id=\""             << hand.id()                          << "\" "
             << "palmPosition=\""   << hand.palmPosition()                << "\" "
             << ">"                 << std::endl;
 
-        outStream   << std::string(8, ' ') << "<orientation "
+        *outStream   << std::string(8, ' ') << "<orientation "
             << "pitch=\""          << direction.pitch() * Leap::RAD_TO_DEG << "\" "
             << "roll=\""           << normal.roll() * Leap::RAD_TO_DEG     << "\" "
             << "yaw=\""            << direction.yaw() * Leap::RAD_TO_DEG   << "\" "
@@ -110,19 +119,19 @@ void PrototypeListener::onFrame_Hands(const Leap::Controller& controller, const 
         onFrame_Fingers(controller, frame, hand);
         onFrame_Arm(controller, frame, hand);
 
-        outStream << std::string(6, ' ') << "</hand>"    << std::endl;
+        *outStream << std::string(6, ' ') << "</hand>"    << std::endl;
     }
-    outStream << std::string(4, ' ') << "</hands>" << std::endl;
+    *outStream << std::string(4, ' ') << "</hands>" << std::endl;
 }
 
 void PrototypeListener::onFrame_Fingers(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Hand& hand)
 {
     const Leap::FingerList fingers = hand.fingers();
-    outStream << std::string(8, ' ') << "<fingers>" << std::endl;
+    *outStream << std::string(8, ' ') << "<fingers>" << std::endl;
     for (auto fl = fingers.begin(); fl != fingers.end(); ++fl)
     {
         const Leap::Finger finger = *fl;
-        outStream  << std::string(10, ' ') << "<finger "
+        *outStream  << std::string(10, ' ') << "<finger "
             << "type=\""           << fingerNames[finger.type()] << "\" "
             << "id=\""             << finger.id()                << "\" "
             << "length=\""         << finger.length()            << "\" "
@@ -130,28 +139,28 @@ void PrototypeListener::onFrame_Fingers(const Leap::Controller& controller, cons
             << ">"                 << std::endl;
 
         // Get finger bones
-        outStream  << std::string(10, ' ') << "<bones>" << std::endl;
+        *outStream  << std::string(10, ' ') << "<bones>" << std::endl;
         for (int b = 0; b < 4; ++b)
         {
             Leap::Bone::Type boneType = static_cast<Leap::Bone::Type>(b);
             Leap::Bone bone = finger.bone(boneType);
-            outStream   << std::string(12, ' ') << "<bone "
+            *outStream   << std::string(12, ' ') << "<bone "
                 << "type=\""            << boneNames[boneType] << "\" "
                 << "start=\""           << bone.prevJoint()    << "\" "
                 << "end=\""             << bone.nextJoint()    << "\" "
                 << "direction=\""       << bone.direction()    << "\" "
                 << "/>"                 << std::endl;
         }
-        outStream  << std::string(12, ' ') << "</bones>" << std::endl;
-        outStream  << std::string(10, ' ') << "</finger>" << std::endl;
+        *outStream  << std::string(12, ' ') << "</bones>" << std::endl;
+        *outStream  << std::string(10, ' ') << "</finger>" << std::endl;
     }
-    outStream << std::string(8, ' ') << "</fingers>" << std::endl;
+    *outStream << std::string(8, ' ') << "</fingers>" << std::endl;
 }
 
 void PrototypeListener::onFrame_Arm(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Hand& hand)
 {
         Leap::Arm arm = hand.arm();
-        outStream   << std::string(8, ' ') << "<arm "
+        *outStream   << std::string(8, ' ') << "<arm "
             << "direction=\""      << arm.direction()     << "\" "
             << "wrist_position=\"" << arm.wristPosition() << "\" "
             << "elbow_position=\"" << arm.elbowPosition() << "\" "
@@ -161,23 +170,23 @@ void PrototypeListener::onFrame_Arm(const Leap::Controller& controller, const Le
 void PrototypeListener::onFrame_Tools(const Leap::Controller& controller, const Leap::Frame& frame)
 {
     const Leap::ToolList tools = frame.tools();
-    outStream << std::string(4, ' ') << "<tools>" << std::endl;
+    *outStream << std::string(4, ' ') << "<tools>" << std::endl;
     for (auto tl = tools.begin(); tl != tools.end(); ++tl)
     {
         const Leap::Tool tool = *tl;
-        outStream   << std::string(6, ' ') << "<tool "
+        *outStream   << std::string(6, ' ') << "<tool "
             << "id=\""             << tool.id()
             << "position=\""       << tool.tipPosition() << "\" "
             << "direction=\""      << tool.direction()   << "\" "
             << "/>"                << std::endl;
     }
-    outStream << std::string(4, ' ') << "</tools>" << std::endl;
+    *outStream << std::string(4, ' ') << "</tools>" << std::endl;
 }
 
 void PrototypeListener::onFrame_Gestures(const Leap::Controller& controller, const Leap::Frame& frame)
 {
     const Leap::GestureList gestures = frame.gestures();
-    outStream << std::string(4, ' ') << "<gestures>" << std::endl;
+    *outStream << std::string(4, ' ') << "<gestures>" << std::endl;
     for (auto g = gestures.begin(); g != gestures.end() ; ++g)
     {
         const Leap::Gesture& gesture = *g;
@@ -196,11 +205,11 @@ void PrototypeListener::onFrame_Gestures(const Leap::Controller& controller, con
                 onFrame_ScreenTapGesture(controller, frame, gesture);
                 break;
             default:
-                outStream << std::string(6, ' ')  << "<unknown_gesture />" << std::endl;
+                *outStream << std::string(6, ' ')  << "<unknown_gesture />" << std::endl;
                 break;
         }
     }
-    outStream << std::string(4, ' ') << "</gestures>" << std::endl;
+    *outStream << std::string(4, ' ') << "</gestures>" << std::endl;
 }
 
 void PrototypeListener::onFrame_CircleGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture)
@@ -216,7 +225,7 @@ void PrototypeListener::onFrame_CircleGesture(const Leap::Controller& controller
         Leap::CircleGesture previousUpdate = Leap::CircleGesture(controller.frame(1).gesture(circle.id()));
         sweptAngle = (circle.progress() - previousUpdate.progress()) * 2 * Leap::PI;
     }
-    outStream << std::string(6, ' ')
+    *outStream << std::string(6, ' ')
               << "<circle "
               << "id=\""               << gesture.id()                  << "\" "
               << "state=\""            << stateNames[gesture.state()]   << "\" "
@@ -230,7 +239,7 @@ void PrototypeListener::onFrame_CircleGesture(const Leap::Controller& controller
 void PrototypeListener::onFrame_SwipeGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture)
 {
     Leap::SwipeGesture swipe = gesture;
-    outStream << std::string(6, ' ')
+    *outStream << std::string(6, ' ')
               << "<swipe "
               << "id=\""             << gesture.id()                << "\" "
               << "state=\""          << stateNames[gesture.state()] << "\" "
@@ -242,7 +251,7 @@ void PrototypeListener::onFrame_SwipeGesture(const Leap::Controller& controller,
 void PrototypeListener::onFrame_KeyTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture)
 {
     Leap::KeyTapGesture tap = gesture;
-    outStream << std::string(6, ' ')
+    *outStream << std::string(6, ' ')
               << "<key_tap "
               << "id=\""             << gesture.id()                << "\" "
               << "state=\""          << stateNames[gesture.state()] << "\" "
@@ -254,7 +263,7 @@ void PrototypeListener::onFrame_KeyTapGesture(const Leap::Controller& controller
 void PrototypeListener::onFrame_ScreenTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture)
 {
     Leap::ScreenTapGesture screentap = gesture;
-    outStream << std::string(6, ' ')
+    *outStream << std::string(6, ' ')
               << "<screen_tap id=\"" << gesture.id()                << "\" "
               << "state=\""          << stateNames[gesture.state()] << "\" "
               << "position=\""       << screentap.position()        << "\" "
