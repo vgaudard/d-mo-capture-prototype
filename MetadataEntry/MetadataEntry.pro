@@ -3,8 +3,16 @@ QT       += core gui widgets
 TARGET = MetadataEntry
 TEMPLATE = app
 
-QMAKE_CFLAGS +=  -std=c++11 -I$(LEAP_SDK)/include
-QMAKE_CXXFLAGS +=  -std=c++11 -I$(LEAP_SDK)/include
+defined(LEAP_SDK) {
+}
+else {
+    LEAP_SDK = $$(HOME)/LeapDeveloperKit_v2/LeapSDK/
+}
+
+INCLUDEPATH += $$LEAP_SDK/include
+
+QMAKE_CFLAGS +=  -std=c++11 -I$$LEAP_SDK/include
+QMAKE_CXXFLAGS +=  -std=c++11 -I$$LEAP_SDK/include
 
 OS = $$system(uname)
 ARCH = $$system(uname -m)

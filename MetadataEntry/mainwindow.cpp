@@ -1,3 +1,4 @@
+#include <ctime>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -9,7 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     dialog(this),
-    stringListModel(this)
+    stringListModel(this),
+    metadataFolderPath("metadata")
 {
     ui->setupUi(this);
 
@@ -35,10 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
                      this, SLOT(enableButtons()));
 
     QObject::connect(this->ui->entryListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-                     this, SLOT(updateVisualizer(QListWidgetItem*, QListWidgetItem*)));
+                     this, SLOT(updateVisualizer(QListWidgetItem*)));
 
 
     stringListModel.setStringList(stringList);
+
+    qsrand(time(NULL));
 
 }
 
@@ -55,11 +59,25 @@ MainWindow::~MainWindow()
 
 void MainWindow::saveEntries()
 {
-    QFile file("metadata");
-    file.open(QIODevice::WriteOnly);
-    QDataStream out(&file);
+    QDir dir(".");
+    if (dir.mkpath(metadataFolderPath) && dir.cd(metadataFolderPath))
+    {
+        for (auto it = entries.begin(); it < entries.end(); it++)
+        {
+            QFile file(dir.path() + "/" + GetRandomString()); // WARNING: Not checking duplicates
+            file.open(QIODevice::WriteOnly);
+            QDataStream out(&file);
 
-    out << entries;
+            //out << *it;
+            file.write((*it)->toQString().toUtf8());
+
+            file.close();
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "Could not create metadata directory");
+    }
 }
 
 void MainWindow::addEntry()
@@ -96,7 +114,7 @@ void MainWindow::dialogAccepted()
 }
 
 
-void MainWindow::updateVisualizer(QListWidgetItem* newItem, QListWidgetItem* oldItem)
+void MainWindow::updateVisualizer(QListWidgetItem* newItem)
 {
     /*auto selectedItems = ui->entryListWidget->selectedItems();
     if (selectedItems.length() != 0)
@@ -107,4 +125,19 @@ void MainWindow::updateVisualizer(QListWidgetItem* newItem, QListWidgetItem* old
 
     auto entryLabelNewItem = static_cast<EntryLabel*>(newItem);
     ui->dataVisualizer->document()->setPlainText(entryLabelNewItem->getEntry()->toQString());
+}
+
+
+QString MainWindow::GetRandomString(int randomStringLength)
+{
+   const QString possibleCharacters("abcdefghijklmnopqrstuvwxyz0123456789");
+
+   QString randomString;
+   for(int i=0; i<randomStringLength; ++i)
+   {
+       int index = qrand() % possibleCharacters.length();
+       QChar nextChar = possibleCharacters.at(index);
+       randomString.append(nextChar);
+   }
+   return randomString;
 }

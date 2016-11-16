@@ -147,7 +147,6 @@ bool operator==(const Entry& entry1, const Entry& entry2)
 
 QDataStream &operator<<(QDataStream& dataStream, const Entry* entry)
 {
-    // TODO
     return dataStream << entry->toQString();
 }
 

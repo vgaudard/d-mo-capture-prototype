@@ -5,6 +5,8 @@
 #include <QModelIndexList>
 #include <QStringListModel>
 #include <QFile>
+#include <QDir>
+#include <QMessageBox>
 #include <QListWidgetItem>
 
 #include <iostream>
@@ -37,7 +39,7 @@ public slots:
 private slots:
     void enableButtons();
     void dialogAccepted();
-    void updateVisualizer(QListWidgetItem *newItem, QListWidgetItem *oldItem);
+    void updateVisualizer(QListWidgetItem *newItem);
 
 private:
     Ui::MainWindow *ui;
@@ -48,6 +50,10 @@ private:
     QStringList stringList;
     QStringListModel stringListModel;
 
+    const QString metadataFolderPath;
+
+private:
+    static QString GetRandomString(int randomStringLength = 6);
 };
 
 #endif // MAINWINDOW_H
