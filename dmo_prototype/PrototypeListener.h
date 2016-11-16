@@ -9,7 +9,7 @@ namespace DMO_Prototype
     class PrototypeListener : public Leap::Listener
     {
         public:
-            PrototypeListener();
+            PrototypeListener(std::ostream& stream);
             virtual ~PrototypeListener();
             virtual void onInit(const Leap::Controller&);
             virtual void onConnect(const Leap::Controller&);
@@ -32,6 +32,8 @@ namespace DMO_Prototype
             virtual void onFrame_SwipeGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
             virtual void onFrame_KeyTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
             virtual void onFrame_ScreenTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
+
+            std::ostream& outStream;
 
             static const std::string fingerNames[5];
             static const std::string boneNames[4];
