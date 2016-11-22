@@ -41,6 +41,9 @@ private:
     DMO_Prototype::PrototypeListener listener;
     State state;
     QString id;
+    std::ofstream* stream;
+    int visualizerPID;
+    bool displayedWarning;
 
     Ui::CaptureDialog *ui;
 

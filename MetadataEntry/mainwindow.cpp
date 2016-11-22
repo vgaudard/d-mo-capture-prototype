@@ -10,8 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     metadataDialog(this),
-    stringListModel(this),
     captureDialog(this),
+    stringListModel(this),
     metadataFolderPath("metadata")
 {
     ui->setupUi(this);
@@ -22,13 +22,14 @@ MainWindow::MainWindow(QWidget *parent) :
     in >> entries;
     file.close();*/
 
-    QObject::connect(this->ui->saveButton, SIGNAL(clicked()),
+    // Clicking the different buttons shows the corresponding windows
+    QObject::connect(ui->saveButton, SIGNAL(clicked()),
                      this, SLOT(saveEntries()));
-    QObject::connect(this->ui->addEntryButton, SIGNAL(clicked()),
+    QObject::connect(ui->addEntryButton, SIGNAL(clicked()),
                      this, SLOT(addEntry()));
-    QObject::connect(this->ui->editEntryButton, SIGNAL(clicked()),
+    QObject::connect(ui->editEntryButton, SIGNAL(clicked()),
                      this, SLOT(editEntry()));
-    QObject::connect(this->ui->removeEntryButton, SIGNAL(clicked()),
+    QObject::connect(ui->removeEntryButton, SIGNAL(clicked()),
                      this, SLOT(removeEntry()));
 
     QObject::connect(&metadataDialog, SIGNAL(accepted()),

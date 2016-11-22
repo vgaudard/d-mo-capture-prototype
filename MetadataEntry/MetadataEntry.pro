@@ -3,12 +3,6 @@ QT       += core gui widgets
 TARGET = MetadataEntry
 TEMPLATE = app
 
-defined(LEAP_SDK) {
-}
-else {
-    LEAP_SDK = $$(HOME)/LeapDeveloperKit_v2/LeapSDK/
-}
-
 INCLUDEPATH += $$LEAP_SDK/include
 INCLUDEPATH += ../dmo_prototype
 

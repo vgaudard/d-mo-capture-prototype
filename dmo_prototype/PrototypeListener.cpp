@@ -7,6 +7,7 @@
 
 using namespace DMO_Prototype;
 
+// The following static arrays allow the translation number => name
 const std::string PrototypeListener::fingerNames[] = {"thumb", "index", "middle", "ring", "pinky"};
 const std::string PrototypeListener::boneNames[] = {"metacarpal", "proximal", "middle", "distal"};
 const std::string PrototypeListener::stateNames[] = {"STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END"};

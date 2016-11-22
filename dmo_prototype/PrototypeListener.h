@@ -25,18 +25,23 @@ namespace DMO_Prototype
             virtual void startRecording();
 
         private:
-            virtual void onFrame_Hands(const Leap::Controller&, const Leap::Frame& frame);
-            virtual void onFrame_Fingers(const Leap::Controller&, const Leap::Frame& frame, const Leap::Hand& hand);
-            virtual void onFrame_Arm(const Leap::Controller&, const Leap::Frame& frame, const Leap::Hand& hand);
-            virtual void onFrame_Tools(const Leap::Controller&, const Leap::Frame& frame);
-            virtual void onFrame_Gestures(const Leap::Controller&, const Leap::Frame& frame);
-            virtual void onFrame_CircleGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
-            virtual void onFrame_SwipeGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
-            virtual void onFrame_KeyTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
-            virtual void onFrame_ScreenTapGesture(const Leap::Controller& controller, const Leap::Frame& frame, const Leap::Gesture& gesture);
+            // The following functions are used from onFrame
+            virtual void onFrame_Hands(const Leap::Controller&                       , const Leap::Frame& frame);
+            virtual void onFrame_Fingers(const Leap::Controller&                     , const Leap::Frame& frame   , const Leap::Hand& hand);
+            virtual void onFrame_Arm(const Leap::Controller&                         , const Leap::Frame& frame   , const Leap::Hand& hand);
+            virtual void onFrame_Tools(const Leap::Controller&                       , const Leap::Frame& frame);
+            virtual void onFrame_Gestures(const Leap::Controller&                    , const Leap::Frame& frame);
+            virtual void onFrame_CircleGesture(const Leap::Controller& controller    , const Leap::Frame& frame   , const Leap::Gesture& gesture);
+            virtual void onFrame_SwipeGesture(const Leap::Controller& controller     , const Leap::Frame& frame   , const Leap::Gesture& gesture);
+            virtual void onFrame_KeyTapGesture(const Leap::Controller& controller    , const Leap::Frame& frame   , const Leap::Gesture& gesture);
+            virtual void onFrame_ScreenTapGesture(const Leap::Controller& controller , const Leap::Frame& frame   , const Leap::Gesture& gesture);
 
+            // outStream is the output stream used to display/save the xml
+            // data.
             std::ostream* outStream;
 
+
+            // The following static arrays allow the translation number => name
             static const std::string fingerNames[5];
             static const std::string boneNames[4];
             static const std::string stateNames[4];

@@ -37,3 +37,6 @@ ui_*.h
 *.pro.user
 build-*-Debug/
 build-*-Release/
+
+# Use qmake instead
+MetadataEntry/Makefile
